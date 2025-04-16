@@ -1,0 +1,20 @@
+# Basic configuration for Text-to-Speech generation
+
+# Language code (e.g., 'en', 'ko', 'ja')
+language: 'ko'
+
+# Speech rate (implementation depends on the chosen TTS engine)
+# For gTTS, this is not directly configurable via a simple rate parameter.
+# For other engines like pyttsx3, you might have a rate setting.
+# speed: 1.0 # Example, adjust based on engine capabilities
+
+# TTS Engine to use (e.g., 'gtts', 'pyttsx3', 'coqui_tts', etc.)
+# Start with a simple one like gTTS
+engine: 'gtts'
+
+# Output audio format (e.g., 'mp3', 'wav')
+# gTTS primarily outputs mp3. Conversion might be needed.
+output_format: 'mp3'
+
+# Optional: Specify voice/speaker if the engine supports it
+# voice: 'default'

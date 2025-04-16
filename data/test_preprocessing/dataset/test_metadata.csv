@@ -1,0 +1,4 @@
+audio_filepath,text
+/workspaces/Luciper/data/test_preprocessing/audio/sample_02.wav,두 번째 오디오 파일에 대한 텍스트입니다.
+/workspaces/Luciper/data/test_preprocessing/audio/sample_01.wav,첫 번째 샘플 오디오입니다.
+/workspaces/Luciper/data/test_preprocessing/audio/sample_03.wav,세 번째 문장입니다.

@@ -1,0 +1,32 @@
+# Basic requirements
+PyYAML
+pandas
+
+# TTS requirements
+gTTS
+
+# Preprocessing requirements
+librosa # Added for audio cleaning/analysis
+soundfile # Added for audio reading/writing
+ffmpeg-python # Often needed by librosa/soundfile or for conversions
+
+# Whisper fine-tuning requirements
+transformers
+datasets
+torch
+torchaudio
+accelerate # For efficient training
+evaluate # Hugging Face evaluate library for metrics
+jiwer # For Word Error Rate (WER) calculation
+
+# API requirements (Add later if needed)
+# fastapi
+# uvicorn
+# python-multipart
+
+# Evaluation/Visualization (Add later if needed)
+# nltk # For BLEU calculation
+# matplotlib # For visualization
+
+# Feedback UI (Add later if needed)
+# streamlit

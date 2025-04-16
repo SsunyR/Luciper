@@ -1,0 +1,40 @@
+# Configuration for Whisper Fine-Tuning
+
+# Model settings
+model_name_or_path: "openai/whisper-tiny" # Start with a smaller model
+language: "Korean" # Target language for the model
+task: "transcribe" # or "translate"
+
+# Data settings
+dataset_name: null # Set to path of custom dataset if not using HF datasets hub
+# Path to the metadata CSV/JSON file created by format_dataset.py
+# This path should be relative to the project root or absolute
+metadata_file_path: "data/dataset/tts_metadata.csv" # Example path
+audio_column_name: "audio_filepath" # Column name for audio file paths in metadata
+text_column_name: "text" # Column name for transcriptions in metadata
+train_split_name: "train" # Or adjust if using train/validation/test splits
+# validation_split_name: "validation" # Optional: for evaluation during training
+# test_split_name: "test" # Optional: for final evaluation
+
+# Preprocessing settings
+max_duration_in_seconds: 30 # Max audio duration for training samples
+min_duration_in_seconds: 1 # Min audio duration
+max_label_length: 448 # Max number of tokens in transcription (adjust based on model)
+
+# Training arguments (refer to Hugging Face Trainer arguments)
+output_dir: "./whisper-finetuned-model" # Directory to save the trained model and logs
+num_train_epochs: 3
+per_device_train_batch_size: 8 # Adjust based on GPU memory
+per_device_eval_batch_size: 8 # Adjust based on GPU memory
+gradient_accumulation_steps: 1 # Increase for larger effective batch size
+learning_rate: 1e-5
+warmup_steps: 50
+# evaluation_strategy: "steps" # Evaluate during training
+# eval_steps: 500 # Frequency of evaluation
+# save_strategy: "steps"
+# save_steps: 500
+# logging_steps: 100
+fp16: true # Use mixed precision training if GPU supports it
+# gradient_checkpointing: true # Use if memory is very limited, slows down training
+# Add other relevant Trainer arguments as needed
+# report_to: "tensorboard" # Or "wandb"
