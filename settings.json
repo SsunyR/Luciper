@@ -1,0 +1,3 @@
+"terminal.integrated.env.linux": {
+    "PYTHON_PATH": "${CODESPACE_VSCODE_FOLDER}"
+}

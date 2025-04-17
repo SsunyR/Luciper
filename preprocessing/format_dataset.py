@@ -60,28 +60,42 @@ def create_metadata_file(audio_dir, text_dir, output_metadata_path):
         logger.error(f"Failed to create metadata file: {e}")
         return False
 
-def main():
-    parser = argparse.ArgumentParser(description="Format dataset for Whisper fine-tuning.")
-    parser.add_argument("--audio_dir", type=str, required=True, help="Directory containing the audio files (e.g., cleaned audio).")
-    parser.add_argument("--text_dir", type=str, required=True, help="Directory containing the corresponding transcription files (.txt).")
-    parser.add_argument("--output_metadata", type=str, required=True, help="Path to save the output metadata file (e.g., data/dataset/metadata.csv).")
-    args = parser.parse_args()
-
-    logger.info("Starting dataset formatting...")
-    create_metadata_file(args.audio_dir, args.text_dir, args.output_metadata)
-    logger.info("Dataset formatting finished.")
-
 if __name__ == "__main__":
     # Add necessary imports to utils if you haven't already
     import sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-    from utils.logging_utils import setup_logger
-    from utils.file_utils import ensure_dir_exists
+    from utils.logging_utils import setup_logger # Re-import might be needed
+    from utils.file_utils import ensure_dir_exists # Re-import might be needed
     # Need pandas for this script
     try:
         import pandas as pd
     except ImportError:
         print("Error: pandas library is required. Please install it: pip install pandas")
         sys.exit(1)
+    import argparse # Import argparse here as well
 
-    main()
+    # Setup argument parser for direct execution
+    parser = argparse.ArgumentParser(description="Format dataset for Whisper fine-tuning (Direct Execution).")
+    # Provide default values suitable for direct testing or require them
+    parser.add_argument("--audio_dir", type=str, default="data/dataset/audio_cleaned", help="Directory containing the cleaned audio files.")
+    # Update default text_dir to match the default output of generate_tts.py
+    parser.add_argument("--text_dir", type=str, default="data/tts_text", help="Directory containing the corresponding transcription files (.txt). Default: data/tts_text")
+    parser.add_argument("--output_metadata", type=str, default="data/dataset/metadata.csv", help="Path to save the output metadata file.")
+    args = parser.parse_args()
+
+    # Ensure the text directory exists or provide instructions
+    if not os.path.exists(args.text_dir):
+         logger.error(f"Text directory '{args.text_dir}' not found.")
+         logger.error("Please ensure the directory containing .txt files (matching audio filenames) exists.")
+         logger.error("You might need to create it based on your TTS generation process.")
+         # Example: If TTS generated audio in data/tts and original text was in data/raw/input.txt
+         # you might need a step to create individual .txt files in data/tts_text
+         sys.exit(1)
+    if not os.path.exists(args.audio_dir):
+        logger.error(f"Audio directory '{args.audio_dir}' not found. Did you run clean_audio.py?")
+        sys.exit(1)
+
+
+    logger.info("Starting dataset formatting (Direct Execution)...")
+    create_metadata_file(args.audio_dir, args.text_dir, args.output_metadata)
+    logger.info("Dataset formatting finished (Direct Execution).")

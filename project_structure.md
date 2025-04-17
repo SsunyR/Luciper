@@ -1,4 +1,3 @@
-
 ---
 
 # ✅ Luciper 프로젝트 전체 구조
@@ -7,7 +6,8 @@
 📦 Luciper/
 ├── data/
 │   ├── raw/                  # 원본 텍스트, 영상, 오디오 파일 저장
-│   ├── tts/                  # TTS로 생성된 audio-text 쌍 데이터
+│   ├── tts/                  # TTS로 생성된 audio 파일
+│   ├── tts_text/             # TTS 생성 시 사용된 text 파일 (.txt)
 │   ├── videos/               # 사용자 업로드 영상
 │   ├── audios/               # 영상에서 추출된 오디오
 │   ├── subtitles/            # Whisper 자막 + 사용자 수정 자막

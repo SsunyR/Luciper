@@ -1,40 +1,40 @@
 # Configuration for Whisper Fine-Tuning
 
 # Model settings
-model_name_or_path: "openai/whisper-tiny" # Start with a smaller model
-language: "Korean" # Target language for the model
-task: "transcribe" # or "translate"
+model_name_or_path: "openai/whisper-tiny" # 사용할 Whisper 모델 (예: tiny, base, small, medium, large). 작은 모델로 시작 권장.
+language: "Korean" # Fine-tuning할 데이터의 언어 (Whisper가 지원하는 언어)
+task: "transcribe" # "transcribe" (음성->텍스트) 또는 "translate" (음성->영어 텍스트)
 
 # Data settings
-dataset_name: null # Set to path of custom dataset if not using HF datasets hub
-# Path to the metadata CSV/JSON file created by format_dataset.py
-# This path should be relative to the project root or absolute
-metadata_file_path: "data/dataset/tts_metadata.csv" # Example path
-audio_column_name: "audio_filepath" # Column name for audio file paths in metadata
-text_column_name: "text" # Column name for transcriptions in metadata
-train_split_name: "train" # Or adjust if using train/validation/test splits
-# validation_split_name: "validation" # Optional: for evaluation during training
-# test_split_name: "test" # Optional: for final evaluation
+dataset_name: null # Hugging Face Hub의 데이터셋 이름 (사용자 정의 데이터 사용 시 null)
+# format_dataset.py로 생성된 메타데이터 파일 경로. 프로젝트 루트 기준 상대 경로 또는 절대 경로.
+metadata_file_path: "data/dataset/metadata.csv" # format_dataset.py의 기본 출력 경로와 일치하는지 확인
+audio_column_name: "audio_filepath" # metadata_file_path 파일 내 오디오 파일 경로 컬럼 이름
+text_column_name: "text" # metadata_file_path 파일 내 텍스트(transcription) 컬럼 이름
+train_split_name: "train" # Hugging Face Dataset 로드 시 사용할 split 이름 (CSV 사용 시 보통 "train")
+# validation_split_name: "validation" # 학습 중 검증에 사용할 split 이름 (필요시 주석 해제 및 데이터 준비)
+# test_split_name: "test" # 학습 후 최종 평가에 사용할 split 이름 (필요시 주석 해제 및 데이터 준비)
 
 # Preprocessing settings
-max_duration_in_seconds: 30 # Max audio duration for training samples
-min_duration_in_seconds: 1 # Min audio duration
-max_label_length: 448 # Max number of tokens in transcription (adjust based on model)
+max_duration_in_seconds: 30 # 학습 샘플의 최대 오디오 길이 (초). 너무 길면 메모리 부족 발생 가능.
+min_duration_in_seconds: 1  # 학습 샘플의 최소 오디오 길이 (초). 너무 짧은 오디오 제외.
+max_label_length: 448 # 타겟 텍스트의 최대 토큰 길이 (모델별 tokenizer 최대 길이 고려)
 
-# Training arguments (refer to Hugging Face Trainer arguments)
-output_dir: "./whisper-finetuned-model" # Directory to save the trained model and logs
-num_train_epochs: 3
-per_device_train_batch_size: 8 # Adjust based on GPU memory
-per_device_eval_batch_size: 8 # Adjust based on GPU memory
-gradient_accumulation_steps: 1 # Increase for larger effective batch size
-learning_rate: 1e-5
-warmup_steps: 50
-# evaluation_strategy: "steps" # Evaluate during training
-# eval_steps: 500 # Frequency of evaluation
-# save_strategy: "steps"
-# save_steps: 500
-# logging_steps: 100
-fp16: true # Use mixed precision training if GPU supports it
-# gradient_checkpointing: true # Use if memory is very limited, slows down training
-# Add other relevant Trainer arguments as needed
-# report_to: "tensorboard" # Or "wandb"
+# Training arguments (Hugging Face Trainer 인자 참고)
+output_dir: "./whisper-finetuned-model" # 학습된 모델, 체크포인트, 로그 저장 디렉토리
+num_train_epochs: 3 # 전체 데이터셋 학습 반복 횟수
+# 배치 크기는 GPU 메모리에 맞춰 신중하게 조정해야 함. 메모리 부족 시 줄여야 함.
+per_device_train_batch_size: 8 # 장치(GPU)당 학습 배치 크기
+per_device_eval_batch_size: 8  # 장치(GPU)당 평가 배치 크기
+# 그래디언트 축적 단계. 배치 크기를 늘리는 효과. (batch_size * accumulation_steps = 유효 배치 크기)
+gradient_accumulation_steps: 1
+learning_rate: 1e-5 # 학습률
+warmup_steps: 50 # 학습 초반 learning rate를 점진적으로 증가시키는 단계 수
+# evaluation_strategy: "steps" # 학습 중 평가 전략 ("no", "steps", "epoch")
+# eval_steps: 500 # evaluation_strategy가 "steps"일 때 평가 수행 간격 (step 수)
+# save_strategy: "steps" # 모델 저장 전략 ("no", "steps", "epoch")
+# save_steps: 500 # save_strategy가 "steps"일 때 모델 저장 간격 (step 수)
+# logging_steps: 100 # 로그 출력 간격 (step 수)
+fp16: true # Mixed Precision Training 사용 여부 (CUDA GPU 사용 시 권장, 메모리 절약 및 속도 향상)
+# gradient_checkpointing: true # 메모리가 매우 부족할 때 사용 (학습 속도 느려짐)
+# report_to: "tensorboard" # 학습 로그 리포트 대상 ("tensorboard", "wandb", "none")

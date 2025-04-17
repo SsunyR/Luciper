@@ -19,10 +19,10 @@ accelerate # For efficient training
 evaluate # Hugging Face evaluate library for metrics
 jiwer # For Word Error Rate (WER) calculation
 
-# API requirements (Add later if needed)
-# fastapi
-# uvicorn
-# python-multipart
+# API requirements
+fastapi
+uvicorn[standard] # ASGI server with standard dependencies (like websockets)
+python-multipart # For handling form data (file uploads)
 
 # Evaluation/Visualization (Add later if needed)
 # nltk # For BLEU calculation

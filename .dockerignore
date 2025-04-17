@@ -1,0 +1,66 @@
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Test files and data (unless needed in the image for tests)
+# test_*.py
+# tests/
+# *.ipynb # Exclude notebooks from the image
+/data/ # Exclude all data by default, mount volumes instead if needed at runtime
+# Or be more specific:
+# /data/raw/
+# /data/tts/
+# /data/tts_text/
+# /data/videos/
+# /data/audios/
+# /data/subtitles/
+# /data/dataset/
+# /data/test_preprocessing/
+
+# Trained models (should be loaded separately or built into image if static)
+/whisper-finetuned-model/
+
+# Logs
+*.log
+logs/
+
+# Documentation (unless needed in the image)
+docs/
+
+# README and project structure files
+README.md
+project_structure.md
+
+# Scripts not needed inside the container runtime (like setup)
+setup_project.sh
+scripts/docker_setup.sh # Assuming this is for host setup
+
+# Temporary files
+*.tmp
+*.bak

@@ -180,9 +180,9 @@ if __name__ == "__main__":
     from utils.logging_utils import setup_logger # Re-import might be needed if run directly
     from utils.file_utils import ensure_dir_exists
 
-    # Example directories (adjust as needed)
-    input_audio_dir = "../data/tts_test_output" # Use output from TTS test
-    output_cleaned_audio_dir = "../data/dataset/audio_cleaned"
+    # Example directories (adjust as needed - relative to project root)
+    input_audio_dir = "data/tts_test_output" # Use output from TTS test
+    output_cleaned_audio_dir = "data/dataset/audio_cleaned"
 
     # Create dummy input if it doesn't exist
     ensure_dir_exists(input_audio_dir)
@@ -191,10 +191,10 @@ if __name__ == "__main__":
          try:
              # Create a short silent wav file for testing
              sr = 16000; duration = 1; silence = np.zeros(int(sr*duration))
+             # Ensure the dummy file is created in the correct input directory
              sf.write(os.path.join(input_audio_dir, "dummy_silent.wav"), silence, sr)
          except Exception as e:
              logger.error(f"Failed to create dummy silent file: {e}")
-
 
     logger.info("Running audio cleaning process...")
     process_audio_directory(input_audio_dir, output_cleaned_audio_dir)
