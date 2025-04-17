@@ -1,25 +1,70 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, BackgroundTasks
 import os
 import shutil
 from datetime import datetime
 import sys
+import uuid
 
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from utils.file_utils import ensure_dir_exists
 from utils.logging_utils import setup_logger
+from utils.audio_utils import extract_audio
+from whisper.transcribe import run_transcription
 
 router = APIRouter()
 logger = setup_logger(__name__)
 
-# Define base directory for uploads relative to project root
-UPLOAD_DIR = "data/videos"
-ensure_dir_exists(UPLOAD_DIR) # Ensure the directory exists on startup
+# Define base directories relative to project root
+VIDEO_UPLOAD_DIR = "data/videos"
+AUDIO_EXTRACT_DIR = "data/audios"
+SUBTITLE_OUTPUT_DIR = "data/subtitles"
+# Path to the model to use for transcription
+WHISPER_MODEL_PATH = "./whisper-finetuned-model"
 
-@router.post("/upload/video")
-async def upload_video(file: UploadFile = File(...)):
+ensure_dir_exists(VIDEO_UPLOAD_DIR)
+ensure_dir_exists(AUDIO_EXTRACT_DIR)
+ensure_dir_exists(SUBTITLE_OUTPUT_DIR)
+
+# --- Background Task Function ---
+def process_video_and_transcribe(video_path: str, job_id: str):
     """
-    Receives a video file, saves it to the server, and returns the file path.
+    Extracts audio, runs transcription, and handles results.
+    Designed to be run in the background.
+    """
+    logger.info(f"[Job {job_id}] Starting background processing for {video_path}")
+    base_name = os.path.splitext(os.path.basename(video_path))[0]
+    audio_path = os.path.join(AUDIO_EXTRACT_DIR, f"{base_name}.wav")
+
+    # 1. Extract Audio
+    if not extract_audio(video_path, audio_path):
+        logger.error(f"[Job {job_id}] Failed to extract audio from {video_path}")
+        return
+
+    logger.info(f"[Job {job_id}] Audio extracted successfully to {audio_path}")
+
+    # 2. Run Transcription
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    transcription_result = run_transcription(
+        audio_path=audio_path,
+        model_path=WHISPER_MODEL_PATH,
+        output_dir=SUBTITLE_OUTPUT_DIR,
+        device=device
+    )
+
+    if transcription_result:
+        logger.info(f"[Job {job_id}] Transcription completed successfully.")
+    else:
+        logger.error(f"[Job {job_id}] Transcription failed for audio {audio_path}")
+
+    logger.info(f"[Job {job_id}] Background processing finished.")
+
+
+@router.post("/upload/video", status_code=status.HTTP_202_ACCEPTED)
+async def upload_video(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    """
+    Receives a video file, saves it, and schedules background tasks
+    for audio extraction and transcription. Returns a job ID.
     """
     if not file.content_type.startswith("video/"):
         logger.warning(f"Upload failed: Invalid file type '{file.content_type}' from {file.filename}")
@@ -29,32 +74,31 @@ async def upload_video(file: UploadFile = File(...)):
         )
 
     try:
-        # Create a unique filename to avoid conflicts
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        # Sanitize filename (optional but recommended)
-        safe_filename = "".join(c for c in file.filename if c.isalnum() or c in ('_', '.', '-')).strip()
-        if not safe_filename:
-            safe_filename = "uploaded_video"
-        unique_filename = f"{timestamp}_{safe_filename}"
-        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+        # Create a unique job ID and filename
+        job_id = str(uuid.uuid4())
+        original_filename = "".join(c for c in file.filename if c.isalnum() or c in ('_', '.', '-')).strip()
+        if not original_filename:
+            original_filename = "video"
+        video_filename = f"{job_id}_{original_filename}"
+        video_path = os.path.join(VIDEO_UPLOAD_DIR, video_filename)
 
-        logger.info(f"Receiving file: {file.filename} (Size: {file.size}), saving as {unique_filename}")
+        logger.info(f"[Job {job_id}] Receiving file: {file.filename} (Size: {file.size}), saving as {video_filename}")
 
         # Save the uploaded file
-        with open(file_path, "wb") as buffer:
+        with open(video_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        logger.info(f"Successfully saved video file to: {file_path}")
+        logger.info(f"[Job {job_id}] Successfully saved video file to: {video_path}")
 
-        # Placeholder: Trigger audio extraction and transcription process here
-        # For now, just return the path
-        # job_id = start_transcription_job(file_path) # Example function call
+        # Add the processing task to the background
+        background_tasks.add_task(process_video_and_transcribe, video_path, job_id)
+        logger.info(f"[Job {job_id}] Scheduled background task for audio extraction and transcription.")
 
         return {
-            "message": "Video uploaded successfully",
-            "file_path": file_path,
-            # "job_id": job_id # Example
-            }
+            "message": "Video upload accepted. Processing started in background.",
+            "job_id": job_id,
+            "video_path": video_path,
+        }
 
     except Exception as e:
         logger.error(f"Error uploading file {file.filename}: {e}", exc_info=True)
@@ -63,5 +107,6 @@ async def upload_video(file: UploadFile = File(...)):
             detail=f"Could not upload the file: {e}",
         )
     finally:
-        # Ensure the file object is closed
         await file.close()
+
+import torch
