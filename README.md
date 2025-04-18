@@ -44,7 +44,8 @@ Luciper/
 │   ├── tts_text/             # TTS 생성 시 사용된 텍스트 파일 (.txt)
 │   ├── videos/               # 사용자 업로드 영상
 │   ├── audios/               # 영상에서 추출한 오디오
-│   ├── subtitles/            # Whisper 자막 및 사용자 수정 자막
+│   ├── transcripts/          # Whisper 전체 텍스트 결과 (.txt)
+│   ├── subtitles/            # Whisper 타임스탬프 자막 (.srt) 및 사용자 수정 자막
 │   └── dataset/              # fine-tuning용 정제된 데이터셋 (오디오, 메타데이터)
 │
 ├── preprocessing/

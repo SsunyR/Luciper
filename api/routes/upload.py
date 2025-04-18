@@ -18,12 +18,14 @@ logger = setup_logger(__name__)
 # Define base directories relative to project root
 VIDEO_UPLOAD_DIR = "data/videos"
 AUDIO_EXTRACT_DIR = "data/audios"
-SUBTITLE_OUTPUT_DIR = "data/subtitles"
-# Path to the model to use for transcription
-WHISPER_MODEL_PATH = "./whisper-finetuned-model"
+TRANSCRIPT_OUTPUT_DIR = "data/transcripts" # Directory for .txt files
+SUBTITLE_OUTPUT_DIR = "data/subtitles"   # Directory for .srt files
+# Path to the model to use for transcription (Absolute path within container)
+WHISPER_MODEL_PATH = "/app/whisper-finetuned-model" # Or path/name from config
 
 ensure_dir_exists(VIDEO_UPLOAD_DIR)
 ensure_dir_exists(AUDIO_EXTRACT_DIR)
+ensure_dir_exists(TRANSCRIPT_OUTPUT_DIR) # Ensure transcript dir exists
 ensure_dir_exists(SUBTITLE_OUTPUT_DIR)
 
 # --- Background Task Function ---
@@ -48,7 +50,8 @@ def process_video_and_transcribe(video_path: str, job_id: str):
     transcription_result = run_transcription(
         audio_path=audio_path,
         model_path=WHISPER_MODEL_PATH,
-        output_dir=SUBTITLE_OUTPUT_DIR,
+        output_txt_dir=TRANSCRIPT_OUTPUT_DIR, # Pass transcript dir
+        output_srt_dir=SUBTITLE_OUTPUT_DIR,   # Pass subtitle dir
         device=device
     )
 

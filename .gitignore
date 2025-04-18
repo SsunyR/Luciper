@@ -77,9 +77,8 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 # Include the test notebooks in git, but ignore checkpoints
-test_tts_module.ipynb_checkpoints/
-test_preprocessing_module.ipynb_checkpoints/
-
+test_tts_module.ipynb-checkpoints/
+test_preprocessing_module.ipynb-checkpoints/
 
 # IPython
 profile_default/
@@ -132,6 +131,7 @@ Desktop.ini
 /data/tts_text/
 /data/videos/
 /data/audios/
+/data/transcripts/ # Add transcripts directory
 /data/subtitles/
 /data/dataset/audio_cleaned/
 /data/dataset/*.csv # Or specific metadata files if needed

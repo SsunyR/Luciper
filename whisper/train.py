@@ -244,8 +244,10 @@ def run_training(config_path: str):
         logger.info("Training finished.")
 
         # Save model and training stats
-        trainer.save_model() # Saves the tokenizer too
-        logger.info(f"Model saved to {output_dir}")
+        trainer.save_model() # Saves the model weights and config
+        # Explicitly save the processor (tokenizer and feature extractor)
+        processor.save_pretrained(training_args.output_dir)
+        logger.info(f"Model and processor saved to {output_dir}")
 
         metrics = train_result.metrics
         trainer.log_metrics("train", metrics)
